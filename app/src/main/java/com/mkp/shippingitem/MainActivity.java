@@ -1,5 +1,6 @@
 package com.mkp.shippingitem;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -11,6 +12,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.mkp.shippingitem.model.ResponLoginModel;
+import com.mkp.shippingitem.util.AppConstant;
 import com.mkp.shippingitem.util.LogHelper;
 
 import org.apache.http.HttpResponse;
@@ -35,11 +38,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static final String TAG = MainActivity.class.getName();
+    private final String serverUrl = "http://alita.massindo.com/ShippingPresenterApi/v1/users/sign_in";
     protected EditText usermail;
-    private EditText password;
     protected String enteredUsermail;
-    private final String serverUrl = "http://alita.massindo.com/api/v1/users/sign_in";
+    private String enteredPassword;
+    private EditText password;
     private SharedPreferences mPreferences;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,169 +61,70 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 /*  new SignPro().execute();*/
-                enteredUsermail = usermail.getText().toString();
-                String enteredPassword = password.getText().toString();
 
-                if (enteredUsermail.equals("") || enteredPassword.equals("")) {
+
+                if (usermail.getText().toString().equals("") || password.getText().toString().equals("")) {
                     Toast.makeText(MainActivity.this, "Username or password must be filled", Toast.LENGTH_LONG).show();
                     return;
-                }
-                if (enteredUsermail.length() <= 1 || enteredPassword.length() <= 1) {
+                } else if (usermail.getText().toString().length() <= 1 || password.getText().toString().length() <= 1) {
                     Toast.makeText(MainActivity.this, "Username or password length must be greater than one", Toast.LENGTH_LONG).show();
                     return;
+                } else {
+                    new sendLog().execute();
                 }
-                // request authentication with remote server4
-                AsyncDataClass asyncRequestObject = new AsyncDataClass();
-                asyncRequestObject.execute(serverUrl, enteredUsermail, enteredPassword);
+
             }
         });
 
 
     }
 
-    private class AsyncDataClass extends AsyncTask<String, Void, String> {
+    private class sendLog extends AsyncTask<String, Void, ResponLoginModel> {
+        private ProgressDialog pgDialog = new ProgressDialog(MainActivity.this);
 
-
-        protected String doInBackground(String... params) {
-
-            HttpParams httpParameters = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParameters, 5000);
-            HttpConnectionParams.setSoTimeout(httpParameters, 5000);
-
-            HttpClient httpClient = new DefaultHttpClient(httpParameters);
-            HttpPost httpPost = new HttpPost(params[0]);
-
-            String jsonResult = "result";
-            try {
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-                nameValuePairs.add(new BasicNameValuePair("email", params[1]));
-                nameValuePairs.add(new BasicNameValuePair("password", params[2]));
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-                HttpResponse response = httpClient.execute(httpPost);
-
-                jsonResult = inputStreamToString(response.getEntity().getContent()).toString();
-                LogHelper.verbose("POST", "POST: " + jsonResult);
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return jsonResult;
-        }
-       /* protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            System.out.println("Result: " + result);
-            if (result.equals("") || result == null) {
-                Toast.makeText(MainActivity.this, "Server connection failed", Toast.LENGTH_LONG).show();
-                return;
-            }
-            int jsonResult = returnParsedJsonObject(result);
-            if (result.equals(422)) {
-                Toast.makeText(MainActivity.this, "Invalid username or password", Toast.LENGTH_LONG).show();
-                return;
-            }
-            else if (jsonResult == 200) {
-                Toast.makeText(MainActivity.this,  "You have been successfully login", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(MainActivity.this,ShowHistory.class);
-                startActivity(intent);
-            }
-        }
-
-        private StringBuilder inputStreamToString(InputStream is) {
-            String rLine = "";
-            StringBuilder answer = new StringBuilder();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            try {
-                while ((rLine = br.readLine()) != null) {
-                    answer.append(rLine);
-                }
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return answer;
-        }
-    }
-
-    private int returnParsedJsonObject(String result) {
-        JSONObject resultObject = null;
-        int returnedResult = 200;
-        try {
-            resultObject = new JSONObject(result);
-//            LogHelper.verbose("POST","RESULT: "+result);
-
-
-            returnedResult = resultObject.getInt("success");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return returnedResult;
-    }
-}*/
-
+        @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            pgDialog.setTitle("\tRequest Login");
+            pgDialog.setMessage("\tSedang cek data");
+            pgDialog.setCancelable(false);
+            pgDialog.show();
         }
 
-
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            System.out.println("Result: " + result);
-            if (result.equals("") || result == null) {
-                Toast.makeText(MainActivity.this, "Server connection failed", Toast.LENGTH_LONG).show();
-                return;
-            }
-            // int jsonResult = returnParsedJsonObject(result);
-            if (result.equals(200)) {
-                LogHelper.verbose("ONPOST", "RESULT: SUKSES MASUK");
-                Intent intent = new Intent(MainActivity.this, ShowHistory.class);
-                intent.putExtra("MESSAGE", "You have been successfully login");
-                startActivity(intent);
-            } else if (result.equalsIgnoreCase("invalid email and password combination")) {
-                LogHelper.verbose("ONPOST", "RESULT: GAGAL MASUK");
-            } else {
-                LogHelper.verbose("ONPOST", "RESULT: GAGAL MASUK");
-                Intent intent = new Intent(MainActivity.this, ShowHistory.class);
-                intent.putExtra("MESSAGE", "invalid email and password combination");
-                startActivity(intent);
-            }
-//            if (jsonResult == 200) {
-//                Intent intent = new Intent(MainActivity.this,ShowHistory.class);
-//
-//                intent.putExtra("MESSAGE", "You have been successfully login");
-//                startActivity(intent);
-//            }
-        }
-
-        private StringBuilder inputStreamToString(InputStream is) {
-            String rLine = "";
-            StringBuilder answer = new StringBuilder();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        @Override
+        protected ResponLoginModel doInBackground(String... strings) {
+            enteredUsermail = usermail.getText().toString();
+            enteredPassword = password.getText().toString();
             try {
-                while ((rLine = br.readLine()) != null) {
-                    answer.append(rLine);
-                }
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
+                return AppConstant.getLoginApi().LoginA(MainActivity.this, enteredUsermail, enteredPassword);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            return answer;
+            return null;
         }
-    }
 
-    private int returnParsedJsonObject(String result) {
+        @Override
+        protected void onPostExecute(ResponLoginModel responLoginModel) {
+            super.onPostExecute(responLoginModel);
+            pgDialog.dismiss();
+            try {
 
-        JSONObject resultObject = null;
-        int returnedResult = 200;
-        try {
-            resultObject = new JSONObject(result);
-//            LogHelper.verbose("POST","RESULT: "+result);
+                //Jika Kondisi sukses
+                if(responLoginModel.getId() !=null){
+                    Toast.makeText(MainActivity.this, "" + responLoginModel.getId(), Toast.LENGTH_SHORT).show();
+                    LogHelper.verbose(TAG, "resultError: " + responLoginModel.getId());
+                    Intent intent = new Intent(MainActivity.this, ShowHistory.class);
+                    startActivity(intent);
+                }
 
-
-            returnedResult = resultObject.getInt("success");
-        } catch (JSONException e) {
-            e.printStackTrace();
+                //Jika Kondisi Error
+                if (responLoginModel.getError().equals("invalid email and password combination")) {
+                    Toast.makeText(MainActivity.this, "" + responLoginModel.getError(), Toast.LENGTH_SHORT).show();
+                    LogHelper.verbose(TAG, "resultError: " + responLoginModel.getError());
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                LogHelper.verbose(TAG, e.getMessage());
+            }
         }
-        return returnedResult;
     }
 }

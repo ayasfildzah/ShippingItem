@@ -145,7 +145,7 @@ public class ShowHistory extends AppCompatActivity  implements SearchView.OnQuer
         protected ArrayList<DataModel> doInBackground(String... strings) {
 
             try {
-                return AppConstant.getApi().dm(ShowHistory.this);
+                return AppConstant.getApiShippingList().dm(ShowHistory.this);
             } catch (Exception e1) {
                 LogHelper.verbose(TAG, "doInBackground " + e1);
             }
