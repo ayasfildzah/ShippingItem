@@ -2,6 +2,7 @@ package com.mkp.shippingitem.util;
 
 
 import com.mkp.shippingitem.service.LoginPresenterApi;
+import com.mkp.shippingitem.service.ShippingInsertPresenterApi;
 import com.mkp.shippingitem.service.ShippingPresenterApi;
 
 public class AppConstant {
@@ -13,6 +14,7 @@ public class AppConstant {
     public static String RESULT = "RESULT";
     private static ShippingPresenterApi svcApi;
     private static LoginPresenterApi loginApi;
+    private static ShippingInsertPresenterApi shippingInsertPresenterApi;
 
     public static ShippingPresenterApi getApiShippingList() {
         if (svcApi != null) {
@@ -31,5 +33,14 @@ public class AppConstant {
             loginApi = new LoginPresenterApi();
         }
         return loginApi;
+    }
+
+    public static ShippingInsertPresenterApi getShippingInsertPresenterApi() {
+        if (shippingInsertPresenterApi != null) {
+            return shippingInsertPresenterApi;
+        } else {
+            shippingInsertPresenterApi = new ShippingInsertPresenterApi();
+        }
+        return shippingInsertPresenterApi;
     }
 }

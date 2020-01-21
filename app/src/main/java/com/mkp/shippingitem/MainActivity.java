@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.mkp.shippingitem.model.ResponLoginModel;
+import com.mkp.shippingitem.model.ResponseShippingInsert;
 import com.mkp.shippingitem.util.AppConstant;
 import com.mkp.shippingitem.util.LogHelper;
 
@@ -63,15 +64,18 @@ public class MainActivity extends AppCompatActivity {
                 /*  new SignPro().execute();*/
 
 
-                if (usermail.getText().toString().equals("") || password.getText().toString().equals("")) {
-                    Toast.makeText(MainActivity.this, "Username or password must be filled", Toast.LENGTH_LONG).show();
-                    return;
-                } else if (usermail.getText().toString().length() <= 1 || password.getText().toString().length() <= 1) {
-                    Toast.makeText(MainActivity.this, "Username or password length must be greater than one", Toast.LENGTH_LONG).show();
-                    return;
-                } else {
-                    new sendLog().execute();
-                }
+//                if (usermail.getText().toString().equals("") || password.getText().toString().equals("")) {
+//                    Toast.makeText(MainActivity.this, "Username or password must be filled", Toast.LENGTH_LONG).show();
+//                    return;
+//                } else if (usermail.getText().toString().length() <= 1 || password.getText().toString().length() <= 1) {
+//                    Toast.makeText(MainActivity.this, "Username or password length must be greater than one", Toast.LENGTH_LONG).show();
+//                    return;
+//                } else {
+//                    new sendLog().execute();
+//                }
+
+                //ini di taro di button click yang inser
+                new insertShipping().execute();
 
             }
         });
@@ -121,6 +125,46 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "" + responLoginModel.getError(), Toast.LENGTH_SHORT).show();
                     LogHelper.verbose(TAG, "resultError: " + responLoginModel.getError());
                 }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                LogHelper.verbose(TAG, e.getMessage());
+            }
+        }
+    }
+
+
+    //Ini pindahin ke activity yang buat insert shipping
+    private class insertShipping extends AsyncTask<String, Void, ResponseShippingInsert> {
+        private ProgressDialog pgDialog = new ProgressDialog(MainActivity.this);
+
+        @Override
+        protected void onPreExecute() {
+
+            pgDialog.setMessage("\tMohon Tunggu");
+            pgDialog.setCancelable(false);
+            pgDialog.show();
+        }
+
+        @Override
+        protected ResponseShippingInsert doInBackground(String... strings) {
+          String delivery_number="2";
+          String status="ok";
+          String note="Dummy2";
+            try {
+                return AppConstant.getShippingInsertPresenterApi().insShipping(MainActivity.this, delivery_number, status,note);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ResponseShippingInsert result) {
+            super.onPostExecute(result);
+            pgDialog.dismiss();
+            try {
+
+              LogHelper.verbose(TAG,"RESULT SHIPPING :"+result);
             } catch (NullPointerException e) {
                 e.printStackTrace();
                 LogHelper.verbose(TAG, e.getMessage());
