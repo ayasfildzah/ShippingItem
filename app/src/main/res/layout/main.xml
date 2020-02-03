@@ -52,9 +52,10 @@
             android:textColor="@android:color/white"
             android:textStyle="bold" />
         <TextView
+            android:id="@+id/LgUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="User "
+            android:text=" "
             android:textSize="18sp"
             android:layout_marginTop="35dp"
             android:layout_marginLeft="240dp"

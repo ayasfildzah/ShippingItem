@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -40,8 +41,10 @@ public class ShowHistory extends AppCompatActivity  implements SearchView.OnQuer
     LayoutInflater inflater;
     View dialogView;
     EditText txt_no, txt_rate ;
-    TextView txt_hasil;
+    TextView txt_hasil,LgUser;
     FloatingActionButton fab;
+    private SharedPreferences mPreferences;
+    private String userLg;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +62,7 @@ public class ShowHistory extends AppCompatActivity  implements SearchView.OnQuer
         toolbar = findViewById(R.id.toolbar);
 
         txt_hasil   = findViewById(R.id.txt_hasil);
+        LgUser = findViewById(R.id.LgUser);
         fab         = findViewById(R.id.fab1);
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -68,6 +72,13 @@ public class ShowHistory extends AppCompatActivity  implements SearchView.OnQuer
                 DialogForm();
             }
         });
+
+        //SharedPreferences
+        mPreferences = getSharedPreferences("CurrentUser", MODE_PRIVATE);
+
+        //get SharedPreferences dari Login
+        userLg = mPreferences.getString("creator","");
+        LgUser.setText(userLg);
     }
 
     private void DialogForm() {

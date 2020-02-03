@@ -64,18 +64,18 @@ public class MainActivity extends AppCompatActivity {
                 /*  new SignPro().execute();*/
 
 
-//                if (usermail.getText().toString().equals("") || password.getText().toString().equals("")) {
-//                    Toast.makeText(MainActivity.this, "Username or password must be filled", Toast.LENGTH_LONG).show();
-//                    return;
-//                } else if (usermail.getText().toString().length() <= 1 || password.getText().toString().length() <= 1) {
-//                    Toast.makeText(MainActivity.this, "Username or password length must be greater than one", Toast.LENGTH_LONG).show();
-//                    return;
-//                } else {
-//                    new sendLog().execute();
-//                }
+                if (usermail.getText().toString().equals("") || password.getText().toString().equals("")) {
+                    Toast.makeText(MainActivity.this, "Username or password must be filled", Toast.LENGTH_LONG).show();
+                    return;
+                } else if (usermail.getText().toString().length() <= 1 || password.getText().toString().length() <= 1) {
+                    Toast.makeText(MainActivity.this, "Username or password length must be greater than one", Toast.LENGTH_LONG).show();
+                    return;
+                } else {
+                    new sendLog().execute();
+                }
 
                 //ini di taro di button click yang inser
-                new insertShipping().execute();
+//                new insertShipping().execute();
 
             }
         });
@@ -115,7 +115,13 @@ public class MainActivity extends AppCompatActivity {
                 //Jika Kondisi sukses
                 if(responLoginModel.getId() !=null){
                     Toast.makeText(MainActivity.this, "" + responLoginModel.getId(), Toast.LENGTH_SHORT).show();
-                    LogHelper.verbose(TAG, "resultError: " + responLoginModel.getId());
+                    LogHelper.verbose(TAG, "resultSuksesLogin: " + responLoginModel);
+
+                    //Set data SharedPreferences
+                    SharedPreferences.Editor editor = mPreferences.edit();
+                    editor.putString("creator",responLoginModel.getName());
+                    editor.commit();
+                    editor.apply();
                     Intent intent = new Intent(MainActivity.this, ShowHistory.class);
                     startActivity(intent);
                 }
@@ -124,6 +130,10 @@ public class MainActivity extends AppCompatActivity {
                 if (responLoginModel.getError().equals("invalid email and password combination")) {
                     Toast.makeText(MainActivity.this, "" + responLoginModel.getError(), Toast.LENGTH_SHORT).show();
                     LogHelper.verbose(TAG, "resultError: " + responLoginModel.getError());
+                    SharedPreferences.Editor editor = mPreferences.edit();
+                    editor.remove("creator");
+                    editor.clear();
+                    editor.commit();
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
